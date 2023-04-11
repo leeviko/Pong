@@ -8,6 +8,7 @@
 #include "stbimage/stb_image.h"
 
 std::map<std::string, Shader> ResourceManager::Shaders;
+std::map<std::string, Texture> ResourceManager::Textures;
 
 Shader ResourceManager::LoadShader(const char *vShaderFile, const char *fShaderFile, std::string name)
 {
@@ -20,11 +21,24 @@ Shader ResourceManager::GetShader(std::string name)
   return Shaders[name];
 }
 
+Texture ResourceManager::LoadTexture(const char *file, bool alpha, std::string name)
+{
+  Textures[name] = loadTextureFromFile(file, alpha);
+  return Textures[name];
+}
+
+Texture ResourceManager::GetTexture(std::string name)
+{
+  return Textures[name];
+}
+
 void ResourceManager::Clear()
 {
   // Delete all shaders
   for (auto iter : Shaders)
     glDeleteProgram(iter.second.m_ShaderId);
+  for (auto iter : Textures)
+    glDeleteTextures(1, &iter.second.m_TextureId);
 }
 
 Shader ResourceManager::loadShaderFromFile(const char *vShaderFile, const char *fShaderFile)
@@ -60,4 +74,25 @@ Shader ResourceManager::loadShaderFromFile(const char *vShaderFile, const char *
   Shader shader;
   shader.Compile(vShaderCode, fShaderCode);
   return shader;
+}
+
+Texture ResourceManager::loadTextureFromFile(const char *file, bool alpha)
+{
+  // create texture object
+  Texture texture;
+  if (alpha)
+  {
+    texture.Internal_Format = GL_RGBA;
+    texture.Image_Format = GL_RGBA;
+  }
+
+  int width, height, nrChannels;
+
+  stbi_set_flip_vertically_on_load(1);
+  unsigned char *data = stbi_load(file, &width, &height, &nrChannels, 0);
+
+  texture.Generate(width, height, data);
+
+  stbi_image_free(data);
+  return texture;
 }

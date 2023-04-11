@@ -2,7 +2,7 @@
 #include "Shader.hpp"
 #include "MyMath.hpp"
 #include <array>
-
+#include "Texture.hpp"
 #include "Macros.hpp"
 
 void GLClearError();
@@ -21,25 +21,6 @@ struct Vertex
   float TexIndex;
 };
 
-struct RendererData
-{
-  unsigned int QuadVA;
-  unsigned int QuadVB;
-  unsigned int QuadIB;
-
-  unsigned int WhiteTextureId;
-  unsigned int WhiteTextureSlot;
-
-  unsigned int TextureIndex;
-
-  Vertex *QuadBuffer;
-  Vertex *QuadBufferPtr;
-
-  unsigned int IndexCount;
-
-  std::array<unsigned int, MaxTextureSlots> TextureSlots;
-};
-
 class Renderer
 {
 public:
@@ -51,4 +32,5 @@ public:
   void EndBatch();
   void Flush();
   void DrawQuad(const glm::vec2 &pos, const glm::vec2 &size, const glm::vec4 &color);
+  void DrawQuad(const glm::vec2 &pos, const glm::vec2 &size, unsigned int textureId);
 };

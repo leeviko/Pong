@@ -17,6 +17,25 @@ bool GLLogCall(const char *function, const char *file, int line)
   return true;
 }
 
+struct RendererData
+{
+  unsigned int QuadVA = 0;
+  unsigned int QuadVB = 0;
+  unsigned int QuadIB = 0;
+
+  unsigned int WhiteTextureId = 0;
+  unsigned int WhiteTextureSlot = 0;
+
+  unsigned int TextureIndex = 1;
+
+  Vertex *QuadBuffer = nullptr;
+  Vertex *QuadBufferPtr = nullptr;
+
+  unsigned int IndexCount = 0;
+
+  std::array<unsigned int, MaxTextureSlots> TextureSlots;
+};
+
 RendererData s_Data;
 
 Renderer::Renderer()
@@ -73,7 +92,7 @@ void Renderer::Init()
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
   GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
-  unsigned int color = 0xffffffff;
+  uint32_t color = 0xffffffff;
   GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, &color));
 
   s_Data.TextureSlots[0] = s_Data.WhiteTextureId;
@@ -121,6 +140,60 @@ void Renderer::DrawQuad(const glm::vec2 &pos, const glm::vec2 &size, const glm::
   }
 
   float textureIndex = 0.0f;
+
+  s_Data.QuadBufferPtr->Position = {pos.x, pos.y, 0.0f};
+  s_Data.QuadBufferPtr->Color = color;
+  s_Data.QuadBufferPtr->TexCoords = {0.0f, 0.0f};
+  s_Data.QuadBufferPtr->TexIndex = textureIndex;
+  s_Data.QuadBufferPtr++;
+
+  s_Data.QuadBufferPtr->Position = {pos.x + size.x, pos.y, 0.0f};
+  s_Data.QuadBufferPtr->Color = color;
+  s_Data.QuadBufferPtr->TexCoords = {1.0f, 0.0f};
+  s_Data.QuadBufferPtr->TexIndex = textureIndex;
+  s_Data.QuadBufferPtr++;
+
+  s_Data.QuadBufferPtr->Position = {pos.x + size.x, pos.y + size.y, 0.0f};
+  s_Data.QuadBufferPtr->Color = color;
+  s_Data.QuadBufferPtr->TexCoords = {1.0f, 1.0f};
+  s_Data.QuadBufferPtr->TexIndex = textureIndex;
+  s_Data.QuadBufferPtr++;
+
+  s_Data.QuadBufferPtr->Position = {pos.x, pos.y + size.y, 0.0f};
+  s_Data.QuadBufferPtr->Color = color;
+  s_Data.QuadBufferPtr->TexCoords = {0.0f, 1.0f};
+  s_Data.QuadBufferPtr->TexIndex = textureIndex;
+  s_Data.QuadBufferPtr++;
+
+  s_Data.IndexCount += 6;
+}
+
+void Renderer::DrawQuad(const glm::vec2 &pos, const glm::vec2 &size, unsigned int textureId)
+{
+  if (s_Data.IndexCount >= MaxIndices || s_Data.TextureIndex > 31)
+  {
+    EndBatch();
+    Flush();
+    BeginBatch();
+  }
+  constexpr glm::vec4 color = {1.0f, 1.0f, 1.0f, 1.0f};
+
+  float textureIndex = 0.0f;
+  for (unsigned int i = 1; i < s_Data.TextureIndex; i++)
+  {
+    if (s_Data.TextureSlots[i] == textureId)
+    {
+      textureIndex = (float)i;
+      break;
+    }
+  }
+
+  if (textureIndex == 0.0f)
+  {
+    textureIndex = (float)s_Data.TextureIndex;
+    s_Data.TextureSlots[s_Data.TextureIndex] = textureId;
+    s_Data.TextureIndex++;
+  }
 
   s_Data.QuadBufferPtr->Position = {pos.x, pos.y, 0.0f};
   s_Data.QuadBufferPtr->Color = color;

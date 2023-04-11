@@ -9,6 +9,7 @@ public:
   Renderer *renderer;
   glm::vec2 Pos, Size;
   glm::vec4 Color;
+  float TextureId;
 
   GameObject(Renderer &renderer);
   ~GameObject();
