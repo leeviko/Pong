@@ -44,6 +44,11 @@ int main()
     deltaTime = currFrame - lastFrame;
     lastFrame = currFrame;
 
+    int upKeyState = glfwGetKey(window, GLFW_KEY_UP);
+    int downKeyState = glfwGetKey(window, GLFW_KEY_DOWN);
+
+    Pong.ProcessInput(deltaTime, upKeyState, downKeyState);
+
     Pong.Update(deltaTime);
 
     glfwSwapBuffers(window);

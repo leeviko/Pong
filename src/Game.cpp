@@ -1,7 +1,10 @@
 #include "Game.hpp"
 #include "ResourceManager.hpp"
+#include "GameObject.hpp"
+#include <GLFW/glfw3.h>
+#include <iostream>
 
-Game::Game(unsigned int width, unsigned int height) : m_Width(width), m_Height(height), m_PlaneWidth(150.0f)
+Game::Game(unsigned int width, unsigned int height) : m_Width(width), m_Height(height), m_PlayerPlane(GameRenderer)
 {
 }
 
@@ -25,6 +28,14 @@ void Game::Init()
   GameRenderer = renderer;
 
   GameRenderer.Init();
+
+  GameObject PlayerPlane(GameRenderer);
+  m_PlayerPlane = PlayerPlane;
+
+  m_PlayerPlane.Size = {15.0f, 150.0f};
+  m_PlayerPlane.Pos = {m_Width - m_PlayerPlane.Size.x,
+                       m_Height / 2.0f - m_PlayerPlane.Size.y / 2};
+  m_PlayerPlane.Color = {0.8f, 0.8f, 0.8f, 1.0f};
 }
 
 void Game::Update(float dt)
@@ -36,10 +47,34 @@ void Game::Update(float dt)
   ResourceManager::GetShader("quad").SetMatrix4("u_MVP", proj, false);
 
   GameRenderer.BeginBatch();
-
-  GameRenderer.DrawQuad({0.0f, m_Height / 2.0f - m_PlaneWidth / 2}, {15.0f, m_PlaneWidth}, {0.8f, 0.8f, 0.8f, 1.0f});
-  GameRenderer.DrawQuad({m_Width - 15.0f, m_Height / 2.0f - m_PlaneWidth / 2}, {15.0f, m_PlaneWidth}, {0.8f, 0.8f, 0.8f, 1.0f});
+  m_PlayerPlane.Draw();
 
   GameRenderer.EndBatch();
   GameRenderer.Flush();
+}
+
+void Game::ProcessInput(float dt, int isUpPressed, int isDownPressed)
+{
+  float velocity = 400.0f;
+  if (isUpPressed == GLFW_PRESS)
+  {
+    std::cout << m_PlayerPlane.Pos.y << std::endl;
+    if (m_PlayerPlane.Pos.y <= 0.0f)
+    {
+      m_PlayerPlane.Pos.y = 0.0f;
+      return;
+    }
+    m_PlayerPlane.Pos.y -= velocity * dt;
+  }
+  else if (isDownPressed == GLFW_PRESS)
+  {
+    std::cout << m_PlayerPlane.Pos.y << std::endl;
+    if (m_PlayerPlane.Pos.y >= m_Height - m_PlayerPlane.Size.y)
+    {
+      m_PlayerPlane.Pos.y = m_Height - m_PlayerPlane.Size.y;
+      return;
+    }
+
+    m_PlayerPlane.Pos.y += velocity * dt;
+  }
 }
