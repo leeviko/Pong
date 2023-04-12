@@ -39,12 +39,12 @@ void Game::Init()
   m_Ball.Size = {25.0f, 25.0f};
   m_Ball.Color = {1.0f, 0.5f, 0.6f, 1.0f};
   m_Ball.TextureId = ResourceManager::GetTexture("ball").m_TextureId;
-  m_Ball.Init();
+  m_Ball.Init(m_Width, m_Height);
 
   GameObject PlayerPlane(GameRenderer);
   m_PlayerPlane = PlayerPlane;
 
-  m_PlayerPlane.Size = {15.0f, 150.0f};
+  m_PlayerPlane.Size = {15.0f, 125.0f};
   m_PlayerPlane.Pos = {m_Width - m_PlayerPlane.Size.x,
                        m_Height / 2.0f - m_PlayerPlane.Size.y / 2};
   m_PlayerPlane.Color = {0.8f, 0.8f, 0.8f, 1.0f};
@@ -52,7 +52,7 @@ void Game::Init()
   GameObject EnemyPlane(GameRenderer);
   m_EnemyPlane = PlayerPlane;
 
-  m_EnemyPlane.Size = {15.0f, 150.0f};
+  m_EnemyPlane.Size = {15.0f, 125.0f};
   m_EnemyPlane.Pos = {0,
                       m_Height / 2.0f - m_EnemyPlane.Size.y / 2};
   m_EnemyPlane.Color = {0.8f, 0.8f, 0.8f, 1.0f};
@@ -77,9 +77,14 @@ void Game::Update(float dt)
   GameRenderer.Flush();
 }
 
-void Game::ProcessInput(float dt, int isUpPressed, int isDownPressed)
+void Game::ProcessInput(float dt, int isUpPressed, int isDownPressed, int rKeyPressed)
 {
   float velocity = 400.0f;
+  if (rKeyPressed == GLFW_PRESS)
+  {
+    m_Ball.Init(m_Width, m_Height);
+    return;
+  }
   if (isUpPressed == GLFW_PRESS)
   {
     if (m_PlayerPlane.Pos.y <= 0.0f)

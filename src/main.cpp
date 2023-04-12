@@ -3,6 +3,9 @@
 #include <iostream>
 #include "Game.hpp"
 
+unsigned int SCREEN_WIDTH = 960;
+unsigned int SCREEN_HEIGHT = 540;
+
 int main()
 {
   glfwInit();
@@ -10,7 +13,7 @@ int main()
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-  GLFWwindow *window = glfwCreateWindow(960, 540, "Pong", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Pong", NULL, NULL);
   if (window == NULL)
   {
     std::cout << "Failed to create GLFW window" << std::endl;
@@ -27,7 +30,7 @@ int main()
     return -1;
   }
 
-  Game Pong(960, 540);
+  Game Pong(SCREEN_WIDTH, SCREEN_HEIGHT);
 
   Pong.Init();
 
@@ -46,8 +49,9 @@ int main()
 
     int upKeyState = glfwGetKey(window, GLFW_KEY_UP);
     int downKeyState = glfwGetKey(window, GLFW_KEY_DOWN);
+    int rKeyState = glfwGetKey(window, GLFW_KEY_R);
 
-    Pong.ProcessInput(deltaTime, upKeyState, downKeyState);
+    Pong.ProcessInput(deltaTime, upKeyState, downKeyState, rKeyState);
 
     Pong.Update(deltaTime);
 

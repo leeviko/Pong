@@ -19,5 +19,5 @@ public:
   void Init();
   void Update(float dt);
 
-  void ProcessInput(float dt, int isUpPressed, int isDownPressed);
+  void ProcessInput(float dt, int isUpPressed, int isDownPressed, int rKeyPressed);
 };
